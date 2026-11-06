@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.vite/
+test-results/
+playwright-report/
+*.tsbuildinfo
+*.local
+public/pdf-assets/
+public/licenses/
