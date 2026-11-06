@@ -86,7 +86,9 @@ test('MOBI và PDF: đọc trực tiếp, PDF không có công cụ ghi chú', a
   await expect.poll(async () => page.locator('canvas').first().evaluate(canvas => {
     const reader = document.querySelector('.reader-host')!.getBoundingClientRect()
     const rect = canvas.getBoundingClientRect()
-    return rect.height <= reader.height - 30 && rect.width <= reader.width
+    return rect.height <= reader.height + 1 && rect.width <= reader.width + 1
+      && rect.left >= reader.left - 1 && rect.right <= reader.right + 1
+      && rect.top >= reader.top - 1 && rect.bottom <= reader.bottom + 1
   })).toBe(true)
   await page.getByRole('button', { name: 'Trang sau', exact: true }).click()
   await expect(page.getByText('Trang 3 / 3', { exact: true }).or(page.getByText('Trang 2 / 3', { exact: true }))).toBeVisible()

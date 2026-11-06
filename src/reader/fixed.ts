@@ -40,6 +40,7 @@ export class FixedEbook {
       settings: () => this.settings, toggle: this.callbacks.onToggleTools,
       next: () => void this.next(), prev: () => void this.prev(),
       selected: () => Array.from(this.docs.values()).some(({ doc }) => !!doc.getSelection()?.toString()),
+      canSwipe: dx => this.surface.canSwipe(dx),
     })
     await this.surface.configure(this.settings)
     if (position) await this.goTo(position)
@@ -63,10 +64,25 @@ export class FixedEbook {
     const meta = doc.querySelector('meta[name="viewport"]')?.getAttribute('content') ?? ''
     const defaultViewport = this.book.rendition?.viewport
     const viewport = typeof defaultViewport === 'string' ? defaultViewport : `width=${defaultViewport?.width ?? ''},height=${defaultViewport?.height ?? ''}`
-    const vw = Number((meta + viewport).match(/width\s*=\s*([\d.]+)/)?.[1]) || 800
-    const vh = Number((meta + viewport).match(/height\s*=\s*([\d.]+)/)?.[1]) || 1200
+    let vw = Number((meta + viewport).match(/width\s*=\s*([\d.]+)/)?.[1]) || 800
+    let vh = Number((meta + viewport).match(/height\s*=\s*([\d.]+)/)?.[1]) || 1200
+    // Some Kindle comics put one scan inside a much larger publisher viewport.
+    // Fit the scan itself; leave positioned pages with text/multiple images intact.
+    const image = doc.images.length === 1 ? doc.images[0] : undefined
+    if (image?.naturalWidth && image.naturalHeight && !doc.body.textContent?.trim() && !doc.querySelector('svg')) {
+      vw = image.naturalWidth; vh = image.naturalHeight
+      for (let element: HTMLElement | null = image; element; element = element.parentElement) {
+        for (const [property, value] of Object.entries({
+          position: 'static', inset: 'auto', margin: '0', padding: '0', border: '0',
+          width: '100%', height: '100%', 'min-width': '0', 'min-height': '0',
+          'max-width': 'none', 'max-height': 'none', transform: 'none',
+          display: 'block', overflow: 'hidden', 'box-sizing': 'border-box',
+        })) element.style.setProperty(property, value, 'important')
+      }
+      image.style.setProperty('object-fit', 'contain', 'important')
+    }
     const scale = this.settings.flow === 'paginated'
-      ? Math.min(width / this.settings.zoom / vw, Math.max(100, this.surface.element.clientHeight - 36) / vh) * this.settings.zoom
+      ? Math.min(width / this.settings.zoom / vw, Math.max(100, this.surface.element.clientHeight) / vh) * this.settings.zoom
       : width / vw
     const displayWidth = vw * scale
     iframe.style.width = `${vw}px`; iframe.style.height = `${vh}px`; iframe.style.transform = `scale(${scale})`
@@ -81,7 +97,7 @@ export class FixedEbook {
     this.docs.set(index, { doc, overlay })
     this.draw(index)
     const clean = bindReadingGestures(doc, { settings: () => this.settings, toggle: this.callbacks.onToggleTools,
-      next: () => void this.next(), prev: () => void this.prev() })
+      next: () => void this.next(), prev: () => void this.prev(), canSwipe: dx => this.surface.canSwipe(dx) })
     const select = () => {
       const selection = doc.getSelection()
       if (!selection?.toString().trim()) return this.callbacks.onSelection(null)

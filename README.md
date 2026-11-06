@@ -33,6 +33,7 @@ Với app đã thêm vào màn hình chính, khi quay lại app có mạng, app 
 - EPUB/MOBI/AZW3 chữ: lật trang hoặc cuộn dọc, mục lục, font/cỡ chữ/khoảng dòng, highlight ba màu, ghi chú và bookmark.
 - Font có chân dùng Noto Serif đầy đủ dấu tiếng Việt, gồm bản thường, nghiêng, đậm và đậm nghiêng. Font được đóng gói và cache offline; không phụ thuộc Georgia cài trên máy. Giữ nguyên văn bản NFC/NFD và vị trí annotation.
 - EPUB/MOBI/AZW3 cố định: trang đơn/đôi theo bề rộng, cuộn dọc, thu phóng, hướng đọc, bookmark và ghi chú theo trang; highlight khi chọn được chữ.
+- Trang truyện chỉ có một ảnh tự vừa khung đọc theo kích thước ảnh gốc, bỏ khoảng trống do viewport của nhà xuất bản. Khi phóng to, kéo để xem ảnh; vuốt tiếp ở mép trái/phải để chuyển trang. Chạm giữa trang khi chưa zoom để ẩn/hiện thanh công cụ.
 - PDF: lật trang/cuộn dọc, thu phóng, trang đôi, mục lục nếu có, bookmark và vị trí đọc. **Không có highlight hoặc ghi chú PDF.**
 - Chuyển trang khoảng 650 ms: sách chữ trượt mượt; truyện/PDF mờ nhẹ và trượt vào sau khi nội dung sẵn sàng. Không cộng dồn các lần bấm trong lúc chuyển; tắt hiệu ứng theo thiết lập giảm chuyển động của thiết bị.
 - Lưu file gốc, vị trí, thiết lập từng sách và annotation trong IndexedDB (Dexie). Annotation không sửa file gốc.

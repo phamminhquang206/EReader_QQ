@@ -52,7 +52,7 @@ export class PageSurface {
     const s = this.settings
     const scrolled = s.flow === 'scrolled'
     const columns = !scrolled && s.spread === 'auto' && this.host.clientWidth >= 900 ? 2 : 1
-    const width = Math.max(180, (this.host.clientWidth - 36 - (columns - 1) * 16) / columns) * s.zoom
+    const width = Math.max(180, (this.host.clientWidth - (columns - 1) * 16) / columns) * s.zoom
     this.element.classList.toggle('continuous', scrolled)
     this.element.dir = s.direction === 'rtl' ? 'rtl' : 'ltr'
     const start = scrolled ? 0 : Math.floor(this.index / columns) * columns
@@ -78,7 +78,10 @@ export class PageSurface {
     // Keep the incoming page hidden until its iframe/images or PDF canvas are
     // ready; fading in an empty placeholder would produce a white flash.
     await Promise.all(rendering)
-    if (revision === this.buildRevision) this.rebuilding = false
+    if (revision === this.buildRevision) {
+      if (!scrolled) { this.element.scrollLeft = 0; this.element.scrollTop = 0 }
+      this.rebuilding = false
+    }
   }
   private async mount(slot: HTMLElement, index: number, width: number) {
     if (this.mounted.has(slot) || this.disposed) return
@@ -128,6 +131,17 @@ export class PageSurface {
   async prev() {
     const step = this.settings.flow === 'paginated' && this.settings.spread === 'auto' && this.host.clientWidth >= 900 ? 2 : 1
     await this.turn(this.index - step, -1)
+  }
+  canSwipe(dx: number) {
+    const max = this.element.scrollWidth - this.element.clientWidth
+    const left = this.element.dir === 'rtl' ? max + this.element.scrollLeft : this.element.scrollLeft
+    if (dx < 0 ? left < max - 2 : left > 2) return false
+    // Native pinch zoom pans the visual viewport as well as the page surface.
+    const viewport = window.visualViewport
+    if (viewport && viewport.scale > 1) {
+      if (dx < 0 ? viewport.offsetLeft + viewport.width < window.innerWidth - 2 : viewport.offsetLeft > 2) return false
+    }
+    return true
   }
   private cancelMotion() {
     this.motionRevision++

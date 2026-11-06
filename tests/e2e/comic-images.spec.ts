@@ -64,12 +64,15 @@ test('file MOBI truyện tranh thực tế tải ảnh các trang', async ({ pag
       try { result.push(...await frame.evaluate(() => Array.from(document.images).map(img => ({
         src: img.getAttribute('src')?.slice(0, 80), loaded: img.complete && img.naturalWidth > 0,
         width: img.naturalWidth, height: img.naturalHeight,
+        widthFraction: img.getBoundingClientRect().width / document.documentElement.clientWidth,
       })))) } catch { /* Frames may be replaced during initial layout. */ }
     }
     return result
   }
   await expect.poll(async () => (await images()).filter(img => img.loaded).length, { timeout: 20000 }).toBeGreaterThan(0)
   console.log('Ảnh MOBI đã tải:', JSON.stringify(await images()))
+  await expect.poll(async () => (await images()).some(img => img.loaded && img.widthFraction > .98)).toBe(true)
+  await page.screenshot({ path: info.outputPath('comic-fit.png') })
   const before = await page.locator('.reader-progress > span').textContent()
   await page.getByRole('button', { name: 'Trang sau', exact: true }).click()
   await expect(page.locator('.reader-progress > span')).not.toHaveText(before!)

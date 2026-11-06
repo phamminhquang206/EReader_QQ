@@ -67,7 +67,7 @@ export class PDFAdapter implements ReaderAdapter {
       if (!container.isConnected) return
       const base = page.getViewport({ scale: 1 })
       const cssScale = this.settings.flow === 'paginated'
-        ? Math.min(width / this.settings.zoom / base.width, Math.max(100, host.clientHeight - 36) / base.height) * this.settings.zoom
+        ? Math.min(width / this.settings.zoom / base.width, Math.max(100, host.clientHeight) / base.height) * this.settings.zoom
         : width / base.width
       const displayWidth = base.width * cssScale
       // Cap the backing canvas to protect mobile GPU/memory budgets.
@@ -88,6 +88,7 @@ export class PDFAdapter implements ReaderAdapter {
       this.callbacks.onRelocate(this.position)
     }, this.callbacks.onError)
     this.cleanup = bindReadingGestures(this.surface.element, {
+      canSwipe: dx => this.surface!.canSwipe(dx),
       settings: () => this.settings, toggle: this.callbacks.onToggleTools,
       next: () => void this.next(), prev: () => void this.prev(),
     })
