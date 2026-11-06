@@ -7,7 +7,7 @@ test('AZW3/KF8: nhập, đọc tiếng Việt, đánh dấu, ghi chú và tiếp
   const data = makeAZW3()
   expect(data.readUInt32BE(data.readUInt32BE(78) + 36)).toBe(8)
   await page.goto('/')
-  await expect(page.getByLabel('Chọn file sách', { exact: true })).toHaveAttribute('accept', /\.azw3/)
+  await expect(page.getByLabel('Chọn file sách', { exact: true })).not.toHaveAttribute('accept')
   await page.getByLabel('Chọn file sách', { exact: true }).setInputFiles({ name: 'sach.AZW3', mimeType: 'application/vnd.amazon.mobi8-ebook', buffer: data })
   await expect(page.getByRole('heading', { name: 'Kết quả nhập sách' })).toBeVisible()
   await expect(page.getByText('Đã thêm vào thư viện')).toBeVisible()

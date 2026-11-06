@@ -50,6 +50,22 @@ export function App() {
     window.addEventListener('online', change); window.addEventListener('offline', change)
     return () => { window.removeEventListener('online', change); window.removeEventListener('offline', change) }
   }, [])
+  useEffect(() => {
+    // Home-screen apps often resume without navigating: check for a new build
+    // on return, but keep activation behind the existing update prompt.
+    const checkForUpdate = () => {
+      if (document.hidden || !navigator.onLine || !navigator.serviceWorker) return
+      void navigator.serviceWorker.getRegistration(import.meta.env.BASE_URL)
+        .then(registration => registration?.update())
+        .catch(() => { /* Reading remains available if the update server is unreachable. */ })
+    }
+    document.addEventListener('visibilitychange', checkForUpdate)
+    window.addEventListener('online', checkForUpdate)
+    return () => {
+      document.removeEventListener('visibilitychange', checkForUpdate)
+      window.removeEventListener('online', checkForUpdate)
+    }
+  }, [])
   const run = async (action: () => Promise<unknown>) => {
     try { await action() } catch (error) { notify(friendlyError(error)) }
   }
@@ -119,7 +135,9 @@ export function App() {
   if (selectedBook) return <><Reader book={selectedBook} onClose={() => setSelectedBook(null)} notify={notify} />{toast && <div className="toast" role="status"><Check size={17} />{toast}<button aria-label="Đóng thông báo" onClick={() => setToast('')}><X size={16} /></button></div>}</>
 
   return <div className="app-shell" onDragOver={e => { e.preventDefault(); if (!busy) setDrop(true) }} onDragLeave={e => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setDrop(false) }} onDrop={e => { e.preventDefault(); setDrop(false); void importFiles(Array.from(e.dataTransfer.files)) }}>
-    <input className="visually-hidden" aria-label="Chọn file sách" ref={fileInput} type="file" accept=".epub,.mobi,.azw3,.pdf" multiple onChange={e => void importFiles(Array.from(e.target.files ?? []))} />
+    {/* iOS Files may disable Kindle files when accept lists unregistered types.
+        importBook validates the extension and file signature after selection. */}
+    <input className="visually-hidden" aria-label="Chọn file sách" ref={fileInput} type="file" multiple onChange={e => void importFiles(Array.from(e.target.files ?? []))} />
     <input className="visually-hidden" aria-label="Chọn bản sao lưu" ref={backupInput} type="file" accept=".zip" onChange={e => void restore(e.target.files?.[0])} />
     {sidebar && <div className="sidebar-scrim" onClick={() => setSidebar(false)} />}
     <aside className={`sidebar ${sidebar ? 'open' : ''}`}>

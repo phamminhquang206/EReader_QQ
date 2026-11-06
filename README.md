@@ -22,6 +22,10 @@ pnpm preview
 
 Mở URL do terminal hiển thị. Chờ tải xong lần đầu trước khi ngắt mạng. Service worker không bật trong chế độ dev. Các file font/CMap/WASM của PDF.js được sao chép từ dependency khi Vite chạy, không lấy từ CDN.
 
+Các parser được gộp vào bundle chính để app iPhone không phải tải thêm module JavaScript khi quay lại từ bộ chọn file hoặc sau một lần deploy. PDF worker vẫn là asset riêng và được cache offline. Bộ chọn sách cho phép chọn mọi loại file để iOS không làm mờ MOBI/AZW3 chưa có liên kết loại file; app kiểm tra đuôi và chữ ký nội dung trước khi nhập.
+
+Với app đã thêm vào màn hình chính, khi quay lại app có mạng, app kiểm tra bản cập nhật và hiện **Cập nhật ngay** ở thư viện. Sau khi deploy bản mới, cập nhật rồi chọn lại file nếu lần nhập trước thất bại.
+
 ## Tính năng
 
 - Nhập nhiều EPUB, MOBI, AZW3, PDF; lấy metadata và bìa; phát hiện file trùng bằng SHA-256. Giới hạn 300 MB/file.

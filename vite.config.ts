@@ -61,6 +61,12 @@ export default defineConfig({
       navigateFallback: `${base}index.html`,
     },
   })],
-  build: { target: 'es2022' },
+  build: {
+    target: 'es2022',
+    // Keep parsers in the entry bundle: an installed iOS PWA can resume with
+    // an old page or failed module cache after a deploy/file-picker round trip.
+    // PDF.js's worker remains a separate, precached asset.
+    rollupOptions: { output: { inlineDynamicImports: true } },
+  },
   optimizeDeps: { exclude: ['foliate-js'] },
 })
