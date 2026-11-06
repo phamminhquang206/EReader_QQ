@@ -2,6 +2,8 @@ import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import { cpSync, mkdirSync, existsSync } from 'node:fs'
 
+const base = process.env.VITE_BASE_PATH || '/'
+
 // Keep CMaps/fonts/WASM local and precached; PDFs must never depend on a CDN.
 mkdirSync('public/pdf-assets', { recursive: true })
 for (const folder of ['cmaps', 'standard_fonts', 'wasm']) {
@@ -14,6 +16,7 @@ for (const dependency of ['foliate-js', 'pdfjs-dist', 'react', 'react-dom', 'dex
 }
 
 export default defineConfig({
+  base,
   // Vite's TSX transform is sufficient; avoid an inline React-refresh preamble under strict CSP.
   plugins: [{
     name: 'foliate-compatibility',
@@ -46,16 +49,16 @@ export default defineConfig({
       name: 'Kệ Sách — Thư viện cá nhân', short_name: 'Kệ Sách', lang: 'vi',
       description: 'Đọc sách và truyện EPUB, MOBI, AZW3, PDF offline.',
       theme_color: '#f7f8f2', background_color: '#f7f8f2', display: 'standalone',
-      start_url: '/', scope: '/',
+      start_url: base, scope: base,
       icons: [
-        { src: '/icon-192.png', sizes: '192x192', type: 'image/png' },
-        { src: '/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
+        { src: `${base}icon-192.png`, sizes: '192x192', type: 'image/png' },
+        { src: `${base}icon-512.png`, sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
       ],
     },
     workbox: {
       globPatterns: ['**/*.{js,mjs,css,html,png,svg,woff,woff2,bcmap,pfb,ttf,wasm}'],
       maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
-      navigateFallback: '/index.html',
+      navigateFallback: `${base}index.html`,
     },
   })],
   build: { target: 'es2022' },

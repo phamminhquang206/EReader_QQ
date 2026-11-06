@@ -11,7 +11,7 @@ export const READER_SERIF_FAMILY = 'KeSach Noto Serif'
 let stylesheet: Promise<string> | undefined
 export function getReaderFontCSS(): Promise<string> {
   stylesheet ??= Promise.all(faces.map(async ({ file, weight, style }) => {
-    const response = await fetch(`/fonts/NotoSerif-${file}.ttf`)
+    const response = await fetch(`${import.meta.env.BASE_URL}fonts/NotoSerif-${file}.ttf`)
     if (!response.ok) throw new Error('Không tải được font đọc sách. Hãy mở app có mạng để cập nhật tài nguyên offline.')
     const data = await response.arrayBuffer()
     const face = new FontFace(READER_SERIF_FAMILY, data, { weight, style })

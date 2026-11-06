@@ -64,6 +64,24 @@ Unit tests kiểm tra nhập trùng, lỗi không ghi dở, xóa dữ liệu li�
 
 ## Hosting và dữ liệu
 
+### GitHub Pages
+
+Trong repository, mở **Settings → Pages → Build and deployment → Source → GitHub Actions**. Push lên `main` sẽ chạy workflow `.github/workflows/deploy.yml`: cài dependency, build rồi deploy **thư mục `dist/`**. Không chọn deploy trực tiếp source ở nhánh `main`: trình duyệt không chạy được `/src/main.tsx`.
+
+Workflow đặt `VITE_BASE_PATH=/<tên-repo>/` để JavaScript, CSS, font, PDF và PWA hoạt động dưới đường dẫn như `/EReader_QQ/`. Khi chạy local hoặc deploy ở root domain, mặc định vẫn là `/`.
+
+Để kiểm tra bản GitHub Pages trên PowerShell:
+
+```powershell
+$env:VITE_BASE_PATH = '/EReader_QQ/'
+pnpm build
+pnpm preview
+```
+
+Mở `http://localhost:4173/EReader_QQ/`. Dùng `Remove-Item Env:VITE_BASE_PATH` để trở lại cấu hình mặc định.
+
+### Static hosting khác
+
 Triển khai thư mục `dist/` trên static hosting HTTPS. Cấu hình fallback về `index.html`, giữ origin ổn định và đặt `Cache-Control: no-cache` cho `sw.js` và `index.html`. Các asset có hash có thể cache lâu. Không cần biến môi trường hoặc secret.
 
 Thông báo giấy phép thư viện được sao chép vào `dist/licenses/` khi build; giữ thư mục này khi triển khai.

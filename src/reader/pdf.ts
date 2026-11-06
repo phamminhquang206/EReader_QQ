@@ -9,8 +9,9 @@ GlobalWorkerOptions.workerSrc = workerURL
 const PDF_ENGINE = 'pdfjs-v1'
 async function loadPDF(file: File) {
   return getDocument({ data: new Uint8Array(await readBlobBuffer(file)),
-    cMapUrl: '/pdf-assets/cmaps/', cMapPacked: true,
-    standardFontDataUrl: '/pdf-assets/standard_fonts/', wasmUrl: '/pdf-assets/wasm/',
+    cMapUrl: `${import.meta.env.BASE_URL}pdf-assets/cmaps/`, cMapPacked: true,
+    standardFontDataUrl: `${import.meta.env.BASE_URL}pdf-assets/standard_fonts/`,
+    wasmUrl: `${import.meta.env.BASE_URL}pdf-assets/wasm/`,
     useSystemFonts: true,
   }).promise
 }
